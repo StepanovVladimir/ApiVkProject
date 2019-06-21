@@ -1,0 +1,12 @@
+﻿@model IEnumerable<ApiVkProject.Models.User>
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<table class="table">
+    <tr><td>Имя</td></tr>
+    @foreach (var item in Model)
+    {
+        <tr><td>@item.FirstName @item.LastName</td></tr>
+    }
+</table>
