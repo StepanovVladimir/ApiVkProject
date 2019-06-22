@@ -10,14 +10,9 @@ namespace ApiVkProject.Controllers
 {
     public class HomeController : Controller
     {
-        public HomeController(ApplicationContext context)
-        {
-            db = context;
-        }
-
         public IActionResult Index()
         {
-            return View(db.Users.ToList());
+            return View();
         }
 
         public IActionResult About()
@@ -44,7 +39,5 @@ namespace ApiVkProject.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
-
-        private ApplicationContext db;
     }
 }
