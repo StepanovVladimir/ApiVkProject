@@ -1,4 +1,4 @@
-﻿@model IEnumerable<ApiVkProject.Models.User>
+﻿@model IEnumerable<VkNet.Model.User>
 
 @{
     ViewData["Title"] = "Подписчики";
@@ -6,43 +6,22 @@
 
 <h2>Подписчики</h2>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.FirstName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LastName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Photo)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.BirthDate)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.FirstName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LastName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Photo)
-            </td>
-            <td>
-                @item.BirthDate.ToShortDateString()
-            </td>
-            <td>
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<ul class="user_list">
+    @foreach (var item in Model)
+    {
+        <li class="user">
+            <a target="_blank" href="@("https://vk.com/id" + item.Id)" class="user_link_photo">
+                <img src="@item.Photo100" class="user_photo" />
+            </a>
+            <div>
+                <h4 class="user_name">
+                    <a target="_blank" href="@("https://vk.com/id" + item.Id)">
+                        @item.FirstName @item.LastName
+                    </a>
+                </h4>
+                <button class="btn btn-default">Написать</button>
+            </div>
+        </li>
+        <!--<a asp-action="Details" asp-route-id="@item.Id">Details</a>-->
+    }
+</ul>
