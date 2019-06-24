@@ -25,7 +25,7 @@ namespace ApiVkProject.Controllers
         {
             _vkApi.Authorize(new VkNet.Model.ApiAuthParams
             {
-                AccessToken = "bf1152e0eb05adfc8d56d9d7ad4f325e26b788441713280f18729fb4013f89da944f7561306bec5c8df59"
+                AccessToken = "8c4dd8cf5b8e9a2990dc1f9ff82d4d0494325d019469dddcec425e63e6871b45baf7e3e57452de5f2c427"
             });
 
             var subscribers = _vkApi.Users.SearchAsync(new UserSearchParams
