@@ -1839,7 +1839,7 @@ pre code {
 .col-xs-offset-0 {
   margin-left: 0%;
 }
-@media (min-width: 768px) {
+@media (min-width: 544px) {
   .col-sm-1,
   .col-sm-2,
   .col-sm-3,
@@ -2008,7 +2008,7 @@ pre code {
     margin-left: 0%;
   }
 }
-@media (min-width: 992px) {
+@media (min-width: 768px) {
   .col-md-1,
   .col-md-2,
   .col-md-3,
@@ -2177,7 +2177,7 @@ pre code {
     margin-left: 0%;
   }
 }
-@media (min-width: 1200px) {
+@media (min-width: 992px) {
   .col-lg-1,
   .col-lg-2,
   .col-lg-3,

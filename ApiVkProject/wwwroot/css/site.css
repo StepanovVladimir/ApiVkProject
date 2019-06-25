@@ -36,3 +36,8 @@ body
 .user_photo {
     border-radius: 50%;
 }
+
+.btn_update {
+    margin-top: 20px;
+    margin-bottom: 10px;
+}

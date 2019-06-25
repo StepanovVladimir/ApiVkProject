@@ -1,17 +1,21 @@
-﻿@model IEnumerable<VkNet.Model.User>
+﻿@model IEnumerable<ApiVkProject.Models.User>
 
 @{
     ViewData["Title"] = "Подписчики";
 }
 
-<h2>Подписчики</h2>
-
+<div class="row">
+    <h2 class="col-sm-8">Подписчики</h2>
+    <form asp-action="UpdateUsers" asp-controller="vkparse" class="col-sm-4 btn_update">
+        <input type="submit" value="Обновить список" class="btn btn-default" />
+    </form>
+</div>
 <ul class="user_list">
     @foreach (var item in Model)
     {
         <li class="user">
             <a target="_blank" href="@("https://vk.com/id" + item.Id)" class="user_link_photo">
-                <img src="@item.Photo100" class="user_photo" />
+                <img src="@item.Photo" class="user_photo" />
             </a>
             <div>
                 <h4 class="user_name">
@@ -19,9 +23,8 @@
                         @item.FirstName @item.LastName
                     </a>
                 </h4>
-                <button class="btn btn-default">Написать</button>
+                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-default">Написать</a>
             </div>
         </li>
-        <!--<a asp-action="Details" asp-route-id="@item.Id">Details</a>-->
     }
 </ul>
