@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
 using ApiVkProject.Models;
 using VkNet;
@@ -14,23 +15,25 @@ namespace ApiVkProject.Controllers
 {
     public class VkParseController : ControllerBase
     {
-        public VkParseController(ApplicationContext context)
+        public VkParseController(ApplicationContext context, IConfiguration config)
         {
             _context = context;
             _vkApi = new VkApi();
+            AppConfiguration = config;
         }
+
+        public IConfiguration AppConfiguration { get; set; }
 
         [HttpPost]
         public IActionResult UpdateUsers()
         {
             _vkApi.Authorize(new VkNet.Model.ApiAuthParams {
-                AccessToken = "8c4dd8cf5b8e9a2990dc1f9ff82d4d0494325d019469dddcec425e63e6871b45baf7e3e57452de5f2c427"
+                AccessToken = AppConfiguration["VkToken"]
             });
-
-            var subscribers = _vkApi.Users.Search(new UserSearchParams {
-                GroupId = 183744420,
-                Count = 100,
-                Fields = ProfileFields.FirstName | ProfileFields.LastName | ProfileFields.Photo100
+            
+            var subscribers = _vkApi.Groups.GetMembers(new GroupsGetMembersParams {
+                GroupId = AppConfiguration["VkGroupId"],
+                Fields = UsersFields.Photo100
             });
 
             foreach (var user in _context.Users)

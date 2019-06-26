@@ -16,5 +16,22 @@ namespace ApiVkProject.Models
         }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<Group> Groups { get; set; }
+        public DbSet<GroupHasUser> GroupHasUser { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<GroupHasUser>().HasKey(t => new { t.GroupId, t.UserId });
+
+            modelBuilder.Entity<GroupHasUser>()
+                .HasOne(gu => gu.Group)
+                .WithMany(g => g.GroupHasUser)
+                .HasForeignKey(gu => gu.GroupId);
+
+            modelBuilder.Entity<GroupHasUser>()
+                .HasOne(gu => gu.User)
+                .WithMany(u => u.GroupHasUser)
+                .HasForeignKey(gu => gu.UserId);
+        }
     }
 }
