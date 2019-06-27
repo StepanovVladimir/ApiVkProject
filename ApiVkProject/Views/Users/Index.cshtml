@@ -6,7 +6,7 @@
 
 <div class="row">
     <h2 class="col-sm-8">Подписчики</h2>
-    <form asp-action="UpdateUsers" asp-controller="vkparse" class="col-sm-4 btn_update">
+    <form asp-action="UpdateUsers" asp-controller="apivk" class="col-sm-4 btn_update">
         <input type="submit" value="Обновить список" class="btn btn-default" />
     </form>
 </div>
@@ -18,12 +18,12 @@
                 <img src="@item.Photo" class="user_photo" />
             </a>
             <div>
-                <h4 class="user_name">
+                <h4>
                     <a target="_blank" href="@("https://vk.com/id" + item.Id)">
                         @item.FirstName @item.LastName
                     </a>
                 </h4>
-                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-default">Детали</a>
+                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-default">Написать</a>
             </div>
         </li>
     }

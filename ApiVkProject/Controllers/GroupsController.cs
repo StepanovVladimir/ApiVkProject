@@ -39,6 +39,13 @@ namespace ApiVkProject.Controllers
                 return NotFound();
             }
 
+            List<User> users = new List<User>();
+            foreach (GroupHasUser groupHasUser in _context.GroupHasUser.Where(gu => gu.GroupId == id))
+            {
+                users.Add(_context.Users.Find(groupHasUser.UserId));
+            }
+            ViewBag.Users = users;
+
             return View(@group);
         }
 
@@ -77,8 +84,10 @@ namespace ApiVkProject.Controllers
             {
                 return NotFound();
             }
+
             ViewBag.Users = await _context.Users.ToListAsync();
-            ViewBag.GroupHasUser = await _context.GroupHasUser.ToListAsync();
+            ViewBag.GroupHasUser = await _context.GroupHasUser.Where(gu => gu.GroupId == id).ToListAsync();
+
             return View(@group);
         }
 

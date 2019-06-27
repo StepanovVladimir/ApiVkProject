@@ -1,23 +1,25 @@
 ﻿@model ApiVkProject.Models.Group
-
+@using ApiVkProject.Models
 @{
     ViewData["Title"] = "Details";
 }
 
-<h2>Details</h2>
-
+<h2>@Html.DisplayFor(model => model.Name)</h2>
+<hr />
 <div>
-    <h4>Group</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-    </dl>
+    @foreach (User user in ViewBag.Users)
+    {
+        <a asp-controller="Users" asp-action="Details" asp-route-id="@user.Id">@user.FirstName @user.LastName</a>
+        <br />
+    }
 </div>
+<br />
+<h4>Написать сообщение</h4>
+<textarea id="message_area"></textarea>
+<br />
+<button data-id="@Model.Id" data-recipient="Group" id="send_message" class="btn btn-default">Отправить</button>
+<br />
+<br />
 <div>
     <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>

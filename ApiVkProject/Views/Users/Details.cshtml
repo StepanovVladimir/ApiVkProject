@@ -4,32 +4,21 @@
     ViewData["Title"] = Model.FirstName + ' ' + Model.LastName;
 }
 
-<h2>Details</h2>
-
-<div>
-    <h4>User</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.FirstName)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.FirstName)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.LastName)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.LastName)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Photo)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Photo)
-        </dd>
-    </dl>
+<div class="user_detail">
+    <a target="_blank" href="@("https://vk.com/id" + Model.Id)" class="user_link_photo">
+        <img src="@Model.Photo" class="user_photo" />
+    </a>
+    <h3>
+        <a target="_blank" href="@("https://vk.com/id" + Model.Id)" class="user_link_photo">
+            @Model.FirstName @Model.LastName
+        </a>
+    </h3>
 </div>
+<textarea id="message_area"></textarea>
+<br />
+<button data-id="@Model.Id" data-recipient="User" id="send_message" class="btn btn-default">Отправить</button>
+<br />
+<br />
 <div>
     <a asp-action="Index">Back to List</a>
 </div>

@@ -13,13 +13,17 @@ using VkNet.Model.RequestParams;
 
 namespace ApiVkProject.Controllers
 {
-    public class VkParseController : ControllerBase
+    public class ApiVkController : ControllerBase
     {
-        public VkParseController(ApplicationContext context, IConfiguration config)
+        public ApiVkController(ApplicationContext context, IConfiguration config)
         {
+            AppConfiguration = config;
             _context = context;
             _vkApi = new VkApi();
-            AppConfiguration = config;
+            _vkApi.Authorize(new VkNet.Model.ApiAuthParams
+            {
+                AccessToken = AppConfiguration["VkToken"]
+            });
         }
 
         public IConfiguration AppConfiguration { get; set; }
@@ -27,11 +31,8 @@ namespace ApiVkProject.Controllers
         [HttpPost]
         public IActionResult UpdateUsers()
         {
-            _vkApi.Authorize(new VkNet.Model.ApiAuthParams {
-                AccessToken = AppConfiguration["VkToken"]
-            });
-            
-            var subscribers = _vkApi.Groups.GetMembers(new GroupsGetMembersParams {
+            var subscribers = _vkApi.Groups.GetMembers(new GroupsGetMembersParams
+            {
                 GroupId = AppConfiguration["VkGroupId"],
                 Fields = UsersFields.Photo100
             });
@@ -62,12 +63,39 @@ namespace ApiVkProject.Controllers
             return RedirectToAction("Index", "Users");
         }
 
+        [HttpPost]
+        public void SendMessageToUser(long id, string message)
+        {
+            _vkApi.Messages.Send(new MessagesSendParams
+            {
+                UserId = id,
+                Message = message
+            });
+        }
+
+        [HttpPost]
+        public void SendMessageToGroup(int id, string message)
+        {
+            List<long> userIds = new List<long>();
+            foreach (GroupHasUser groupHasUser in _context.GroupHasUser.Where(gu => gu.GroupId == id))
+            {
+                userIds.Add(groupHasUser.UserId);
+            }
+
+            _vkApi.Messages.Send(new MessagesSendParams
+            {
+                UserIds = userIds,
+                Message = message
+            });
+        }
+
         private readonly ApplicationContext _context;
         private VkApi _vkApi;
 
         private User ConvertUser(VkNet.Model.User vkUser)
         {
-            User user = new User {
+            User user = new User
+            {
                 Id = vkUser.Id,
                 FirstName = vkUser.FirstName,
                 LastName = vkUser.LastName,
