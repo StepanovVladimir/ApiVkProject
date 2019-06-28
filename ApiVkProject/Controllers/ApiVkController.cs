@@ -15,7 +15,7 @@ using VkNet.Exception;
 
 namespace ApiVkProject.Controllers
 {
-    public class ApiVkController : ControllerBase
+    public class ApiVkController : Controller
     {
         public ApiVkController(ApplicationContext context, IConfiguration config)
         {
@@ -49,18 +49,27 @@ namespace ApiVkProject.Controllers
         }
 
         [HttpPost]
-        public void SendMessageToUser(long id, string message)
+        public JsonResult SendMessageToUser(long id, string message)
         {
-            _vkApi.Messages.Send(new MessagesSendParams
+            try
             {
-                UserId = id,
-                Message = message
-            });
+                _vkApi.Messages.Send(new MessagesSendParams
+                {
+                    UserId = id,
+                    Message = message
+                });
+                return Json("Сообщение отправленно");
+            }
+            catch (CannotSendToUserFirstlyException)
+            {
+                return Json("Нельзя отправить пользователю первым");
+            }
         }
 
         [HttpPost]
-        public void SendMessageToGroup(int id, string message)
+        public JsonResult SendMessageToGroup(int id, string message)
         {
+            string users = "";
             foreach (GroupHasUser groupHasUser in _context.GroupHasUser.Where(gu => gu.GroupId == id))
             {
                 try
@@ -70,9 +79,12 @@ namespace ApiVkProject.Controllers
                         UserId = groupHasUser.UserId,
                         Message = message
                     });
+                    User user = _context.Users.Find(groupHasUser.UserId);
+                    users += user.FirstName + ' ' + user.LastName + '\n';
                 }
                 catch (CannotSendToUserFirstlyException) {}
             }
+            return Json(users);
         }
 
         private readonly ApplicationContext _context;

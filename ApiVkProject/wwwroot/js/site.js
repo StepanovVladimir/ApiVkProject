@@ -17,13 +17,31 @@ function sendMessage(event) {
         url: '/ApiVk/SendMessageTo' + $(event.target).data('recipient'),
         data: { id: id, message: message },
         method: "POST",
-        success: function () {
-            alert('Сообщение отправленно');
+        dataType: 'JSON',
+        complete: function () {
             $('#message_area').val('');
+        },
+        success: function (data) {
+            if ($(event.target).data('recipient') == 'User') {
+                successSendMessageToUser(data);
+            } else {
+                successSendMessageToGroup(data);
+            }
         },
         error: function () {
             alert('Что-то пошло не так');
-            $('#message_area').val('');
         }
     });
+}
+
+function successSendMessageToUser(data) {
+    alert(data);
+}
+
+function successSendMessageToGroup(data) {
+    if (data == '') {
+        alert('Не удалось отправить сообщение никому');
+    } else {
+        alert('Сообщение отправленно следующим пользователям:\n' + data);
+    }
 }
