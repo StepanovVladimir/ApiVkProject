@@ -11,6 +11,7 @@ using ApiVkProject.Repositories;
 using VkNet;
 using VkNet.Enums.Filters;
 using VkNet.Model.RequestParams;
+using VkNet.Exception;
 
 namespace ApiVkProject.Controllers
 {
@@ -21,7 +22,6 @@ namespace ApiVkProject.Controllers
             AppConfiguration = config;
             _context = context;
             _apiVkRepository = new ApiVkRepository(_context);
-            _groupRepository = new GroupRepository(_context);
 
             _vkApi = new VkApi();
             _vkApi.Authorize(new VkNet.Model.ApiAuthParams
@@ -61,29 +61,22 @@ namespace ApiVkProject.Controllers
         [HttpPost]
         public void SendMessageToGroup(int id, string message)
         {
-            _vkApi.Messages.Send(new MessagesSendParams
+            foreach (GroupHasUser groupHasUser in _context.GroupHasUser.Where(gu => gu.GroupId == id))
             {
-                UserIds = _groupRepository.GetMemberIds(id),
-                Message = message
-            });
+                try
+                {
+                    _vkApi.Messages.Send(new MessagesSendParams
+                    {
+                        UserId = groupHasUser.UserId,
+                        Message = message
+                    });
+                }
+                catch (CannotSendToUserFirstlyException) {}
+            }
         }
 
         private readonly ApplicationContext _context;
         private VkApi _vkApi;
         private ApiVkRepository _apiVkRepository;
-        private GroupRepository _groupRepository;
-
-        private User ConvertUser(VkNet.Model.User vkUser)
-        {
-            User user = new User
-            {
-                Id = vkUser.Id,
-                FirstName = vkUser.FirstName,
-                LastName = vkUser.LastName,
-                Photo = vkUser.Photo100.ToString()
-            };
-
-            return user;
-        }
     }
 }

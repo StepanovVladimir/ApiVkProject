@@ -19,9 +19,11 @@ function sendMessage(event) {
         method: "POST",
         success: function () {
             alert('Сообщение отправленно');
+            $('#message_area').val('');
         },
         error: function () {
             alert('Что-то пошло не так');
+            $('#message_area').val('');
         }
     });
 }
