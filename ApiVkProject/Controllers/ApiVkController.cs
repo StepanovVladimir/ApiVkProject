@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
 using ApiVkProject.Models;
+using ApiVkProject.Repositories;
 using VkNet;
 using VkNet.Enums.Filters;
 using VkNet.Model.RequestParams;
@@ -19,6 +20,9 @@ namespace ApiVkProject.Controllers
         {
             AppConfiguration = config;
             _context = context;
+            _apiVkRepository = new ApiVkRepository(_context);
+            _groupRepository = new GroupRepository(_context);
+
             _vkApi = new VkApi();
             _vkApi.Authorize(new VkNet.Model.ApiAuthParams
             {
@@ -37,26 +41,7 @@ namespace ApiVkProject.Controllers
                 Fields = UsersFields.Photo100
             });
 
-            foreach (var user in _context.Users)
-            {
-                if (!subscribers.Any(e => e.Id == user.Id))
-                {
-                    _context.Users.Remove(user);
-                }
-            }
-
-            foreach (var subscriber in subscribers)
-            {
-                User user = _context.Users.Find(subscriber.Id);
-                if (user == null)
-                {
-                    _context.Add(ConvertUser(subscriber));
-                }
-                else
-                {
-                    _context.Update(user);
-                }
-            }
+            _apiVkRepository.UpdateUsers(subscribers);
 
             _context.SaveChanges();
 
@@ -76,21 +61,17 @@ namespace ApiVkProject.Controllers
         [HttpPost]
         public void SendMessageToGroup(int id, string message)
         {
-            List<long> userIds = new List<long>();
-            foreach (GroupHasUser groupHasUser in _context.GroupHasUser.Where(gu => gu.GroupId == id))
-            {
-                userIds.Add(groupHasUser.UserId);
-            }
-
             _vkApi.Messages.Send(new MessagesSendParams
             {
-                UserIds = userIds,
+                UserIds = _groupRepository.GetMemberIds(id),
                 Message = message
             });
         }
 
         private readonly ApplicationContext _context;
         private VkApi _vkApi;
+        private ApiVkRepository _apiVkRepository;
+        private GroupRepository _groupRepository;
 
         private User ConvertUser(VkNet.Model.User vkUser)
         {

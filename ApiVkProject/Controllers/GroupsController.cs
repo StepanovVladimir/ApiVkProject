@@ -6,16 +6,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ApiVkProject.Models;
+using ApiVkProject.Repositories;
 
 namespace ApiVkProject.Controllers
 {
     public class GroupsController : Controller
     {
-        private readonly ApplicationContext _context;
-
         public GroupsController(ApplicationContext context)
         {
             _context = context;
+            _groupRepository = new GroupRepository(_context);
         }
 
         // GET: Groups
@@ -32,21 +32,16 @@ namespace ApiVkProject.Controllers
                 return NotFound();
             }
 
-            var @group = await _context.Groups
+            var group = await _context.Groups
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (@group == null)
+            if (group == null)
             {
                 return NotFound();
             }
 
-            List<User> users = new List<User>();
-            foreach (GroupHasUser groupHasUser in _context.GroupHasUser.Where(gu => gu.GroupId == id))
-            {
-                users.Add(_context.Users.Find(groupHasUser.UserId));
-            }
-            ViewBag.Users = users;
+            ViewBag.Users = _groupRepository.GetMembers((int)id);
 
-            return View(@group);
+            return View(group);
         }
 
         // GET: Groups/Create
@@ -60,15 +55,15 @@ namespace ApiVkProject.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name")] Group @group)
+        public async Task<IActionResult> Create([Bind("Id,Name")] Group group)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(@group);
+                _context.Add(group);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(@group);
+            return View(group);
         }
 
         // GET: Groups/Edit/5
@@ -79,16 +74,16 @@ namespace ApiVkProject.Controllers
                 return NotFound();
             }
 
-            var @group = await _context.Groups.FindAsync(id);
-            if (@group == null)
+            var group = await _context.Groups.FindAsync(id);
+            if (group == null)
             {
                 return NotFound();
             }
 
-            ViewBag.Users = await _context.Users.ToListAsync();
-            ViewBag.GroupHasUser = await _context.GroupHasUser.Where(gu => gu.GroupId == id).ToListAsync();
+            ViewBag.Users = _context.Users.ToList();
+            ViewBag.MemberIds = _groupRepository.GetMemberIds((int)id);
 
-            return View(@group);
+            return View(group);
         }
 
         // POST: Groups/Edit/5
@@ -96,52 +91,23 @@ namespace ApiVkProject.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Group @group, long[] selectedUsers)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Group group, long[] selectedUsers)
         {
-            if (id != @group.Id)
+            if (id != group.Id)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(@group);
+                _context.Update(group);
+                _groupRepository.UpdateGroupHasUser(id, selectedUsers);
 
-                    foreach (GroupHasUser groupHasUser in _context.GroupHasUser.Where(gu => gu.GroupId == id))
-                    {
-                        if (!selectedUsers.Any(userId => userId == groupHasUser.UserId))
-                        {
-                            _context.GroupHasUser.Remove(groupHasUser);
-                        }
-                    }
+                await _context.SaveChangesAsync();
 
-                    foreach (long userId in selectedUsers)
-                    {
-                        GroupHasUser groupHasUser = _context.GroupHasUser.Find(id, userId);
-                        if (groupHasUser == null)
-                        {
-                            _context.Add(new GroupHasUser { GroupId = id, UserId = userId });
-                        }
-                    }
-
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!GroupExists(@group.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
                 return RedirectToAction(nameof(Index));
             }
-            return View(@group);
+            return View(group);
         }
 
         // GET: Groups/Delete/5
@@ -152,14 +118,14 @@ namespace ApiVkProject.Controllers
                 return NotFound();
             }
 
-            var @group = await _context.Groups
+            var group = await _context.Groups
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (@group == null)
+            if (group == null)
             {
                 return NotFound();
             }
 
-            return View(@group);
+            return View(group);
         }
 
         // POST: Groups/Delete/5
@@ -167,15 +133,13 @@ namespace ApiVkProject.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var @group = await _context.Groups.FindAsync(id);
-            _context.Groups.Remove(@group);
+            var group = await _context.Groups.FindAsync(id);
+            _context.Groups.Remove(group);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool GroupExists(int id)
-        {
-            return _context.Groups.Any(e => e.Id == id);
-        }
+        private readonly ApplicationContext _context;
+        private GroupRepository _groupRepository;
     }
 }

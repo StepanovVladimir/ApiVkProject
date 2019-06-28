@@ -25,8 +25,8 @@
                 {
                     <label>
                         <input type="checkbox" name="selectedUsers" value="@user.Id"
-                            @(((List<GroupHasUser>)ViewBag.GroupHasUser)
-                            .Any(gu => gu.UserId == user.Id) ? "checked=\"checked\"" : "") />
+                            @(((List<long>)ViewBag.MemberIds)
+                            .Any(id => id == user.Id) ? "checked=\"checked\"" : "") />
                         @user.FirstName @user.LastName
                         <br />
                     </label>
